@@ -1,0 +1,9 @@
+build/
+dist/
+vendor/
+*.deb
+*.rpm
+*.AppImage
+*.flatpak
+*.pkg.tar.zst
+__pycache__/

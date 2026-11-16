@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>@APP_ID@</id>
+  <metadata_license>MIT</metadata_license>
+  <project_license>LicenseRef-proprietary</project_license>
+  <name>VooV Meeting</name>
+  <summary>Cross-border video conferencing</summary>
+  <description>
+    <p>
+      VooV Meeting is Tencent's international video-conferencing client.
+      This is an unofficial Linux build derived from Tencent Meeting.
+    </p>
+    <p>Release @RELEASE_NAME@.</p>
+  </description>
+  <launchable type="desktop-id">@APP_ID@.desktop</launchable>
+  <url type="homepage">https://github.com/hominluo/voov-meeting-linux</url>
+  <developer id="com.voovmeeting">
+    <name>Homin Luo</name>
+  </developer>
+  <content_rating type="oars-1.1" />
+</component>

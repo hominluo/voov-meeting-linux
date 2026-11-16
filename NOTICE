@@ -1,0 +1,24 @@
+# NOTICE
+
+This repository contains build scripts, binary patches and packaging files
+licensed under the MIT license (see LICENSE).
+
+The release artifacts also contain an application tree taken from Tencent's
+official Linux package:
+
+    Tencent Meeting 3.26.10.401
+    TencentMeeting_0300000000_3.26.10.401_x86_64_default.publish.officialwebsite.deb
+
+That application, including all libraries, resources, fonts and other assets in
+`/opt/voov-meeting`, is proprietary software:
+
+    Copyright (c) Tencent. All rights reserved.
+    VooV Meeting and Tencent Meeting are trademarks of Tencent.
+
+Nothing in the MIT license grants rights to those binaries. They are
+redistributed unmodified (apart from the documented binary patches) under the
+terms Tencent offers for its official Linux package. If you are a rights holder
+and want an artifact removed, open an issue.
+
+This is an unofficial community project. It is not affiliated with, endorsed
+by, or supported by Tencent.

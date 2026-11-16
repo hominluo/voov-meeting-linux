@@ -1,0 +1,48 @@
+Name:           voov-meeting
+Version:        @VERSION@
+Release:        @RELEASE@
+Summary:        Unofficial VooV Meeting Linux client
+License:        Proprietary
+URL:            https://github.com/hominluo/voov-meeting-linux
+BuildArch:      x86_64
+AutoReqProv:    no
+
+Requires:       nss
+Requires:       libX11
+Requires:       libxcb
+Requires:       libxkbcommon
+Requires:       glib2
+Requires:       pulseaudio-libs
+Requires:       libgcrypt
+Requires:       dbus-libs
+Requires:       systemd-libs
+Requires:       alsa-lib
+
+%define _binary_payload w9.xzdio
+# The bundled libraries carry build-machine RPATHs; skip check-rpaths.
+%define __arch_install_post %{nil}
+
+%description
+VooV Meeting is Tencent's international video-conferencing client.
+Tencent only ships a Linux client for the China-only "Tencent Meeting"
+product, so this package repackages that build and patches its signaling
+endpoints to the international VooV infrastructure.
+
+This is an unofficial community build. The bundled binaries are proprietary
+Tencent software; only the packaging and patch scripts are MIT licensed.
+
+%install
+mkdir -p %{buildroot}
+cp -a /src/build/rpm-root/. %{buildroot}/
+
+%files
+/opt/voov-meeting
+/usr/bin/voov-meeting
+/usr/share/applications/voov-meeting.desktop
+/usr/share/icons/hicolor/*/apps/voov-meeting.png
+/usr/share/pixmaps/voov-meeting.png
+/usr/share/doc/voov-meeting
+
+%changelog
+* Mon Nov 16 2026 Homin Luo <homin.ro@gmail.com> - @VERSION@-@RELEASE@
+- Initial package

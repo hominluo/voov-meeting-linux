@@ -1,0 +1,24 @@
+# Maintainer: Homin Luo <homin.ro@gmail.com>
+# Arch Linux package for the unofficial VooV Meeting Linux build.
+# The release version tracks the VooV Meeting product version; pkgrel is the
+# same counter as the "(N)" suffix on GitHub releases.
+pkgname=voov-meeting
+pkgver=3.43.0.510
+pkgrel=1
+pkgdesc="Unofficial VooV Meeting Linux client (patched Tencent Meeting build)"
+arch=('x86_64')
+url="https://github.com/hominluo/voov-meeting-linux"
+license=('custom:proprietary')
+depends=('nss' 'libx11' 'libxcb' 'libxkbcommon' 'glib2' 'libpulse' 'libgcrypt' 'dbus' 'systemd-libs' 'alsa-lib')
+options=('!strip' '!debug')
+install=voov-meeting.install
+source=("voov-meeting_${pkgver}-${pkgrel}_amd64.deb::${url}/releases/download/v${pkgver}-${pkgrel}/voov-meeting_${pkgver}-${pkgrel}_amd64.deb")
+sha256sums=('842d5db43496f86c1cde6406f8fcc6d6368f483480c30ba58e877d262d50e6db')
+
+package() {
+  cd "$srcdir"
+  ar x "voov-meeting_${pkgver}-${pkgrel}_amd64.deb"
+  tar -xf data.tar.xz -C "$pkgdir"
+}
+
+# vim:set ts=2 sw=2 et:

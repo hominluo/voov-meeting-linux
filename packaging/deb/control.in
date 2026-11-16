@@ -1,0 +1,22 @@
+Package: voov-meeting
+Version: @VERSION@
+Section: net
+Priority: optional
+Architecture: amd64
+Installed-Size: @INSTALLED_SIZE@
+Depends: libnss3, libx11-6, libxcb1, libxkbcommon0, libglib2.0-0, libpulse0, libgcrypt20, libdbus-1-3, libsystemd0, libudev1, libasound2, desktop-file-utils
+Recommends: xdg-utils, libnotify4
+Maintainer: Homin Luo <homin.ro@gmail.com>
+Homepage: https://github.com/hominluo/voov-meeting-linux
+Description: VooV Meeting (unofficial Linux build)
+ VooV Meeting is Tencent's international video-conferencing client.
+ .
+ Tencent only ships a Linux client for the China-only "Tencent Meeting"
+ product, so this package repackages that build and patches its signaling
+ endpoints to the international VooV infrastructure.
+ .
+ Release @RELEASE_NAME@ tracks VooV Meeting @APP_VERSION@; the bundled
+ application tree is Tencent Meeting @UPSTREAM_VERSION@ for Linux.
+ .
+ This is an unofficial community build. The bundled binaries are proprietary
+ Tencent software; only the packaging and patch scripts are MIT licensed.
