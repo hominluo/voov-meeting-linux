@@ -1,4 +1,4 @@
 #!/bin/bash
 # AppRun entry point for the AppImage build.
 HERE=$(dirname "$(readlink -f "$0")")
-exec "$HERE/opt/voov-meeting/wemeetapp.sh" "$@"
+exec "$HERE/opt/voov-meeting/bin/voov-meeting" "$@"

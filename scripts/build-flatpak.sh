@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # Build a Flatpak bundle (single-file .flatpak) with flatpak build-* tools.
-# flatpak-builder is not required.
+# flatpak-builder is not required. Wine is bundled.
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 ensure_tree "$@"
+ensure_bundled_wine
 
 APP_ID_FLATPAK=com.voovmeeting.VooVMeeting
 RUNTIME=org.freedesktop.Platform
@@ -18,15 +19,18 @@ rm -rf "$BUILD" "$REPO"
 flatpak build-init "$BUILD" "$APP_ID_FLATPAK" "$SDK" "$RUNTIME" "$BRANCH"
 
 APPDIR=$BUILD/files
-mkdir -p "$APPDIR/bin" "$APPDIR/opt" "$APPDIR/share/applications" \
+mkdir -p "$APPDIR/bin" "$APPDIR/opt/voov-meeting/lib" \
+  "$APPDIR/share/applications" \
   "$APPDIR/share/icons/hicolor/256x256/apps" "$APPDIR/share/metainfo"
 
 info "copying application tree"
-hardlink_copy "$TREE/opt/voov-meeting" "$APPDIR/opt/voov-meeting"
+hardlink_copy "$APP_TREE" "$APPDIR/opt/voov-meeting/app"
+hardlink_copy "$TREE/wine" "$APPDIR/opt/voov-meeting/lib/wine"
+stage_common "$APPDIR"
 
 cat > "$APPDIR/bin/voov-meeting" <<'EOF'
 #!/bin/bash
-exec /app/opt/voov-meeting/wemeetapp.sh "$@"
+exec /app/opt/voov-meeting/bin/voov-meeting "$@"
 EOF
 chmod 755 "$APPDIR/bin/voov-meeting"
 
@@ -48,10 +52,10 @@ flatpak build-finish "$BUILD" \
   --socket=x11 \
   --socket=pulseaudio \
   --device=dri \
+  --device=all \
   --filesystem=home \
   --talk-name=org.freedesktop.Notifications \
-  --own-name=com.tencent.wemeet \
-  --env=QT_QPA_PLATFORM=xcb
+  --own-name=com.tencent.wemeet
 
 mkdir -p "$REPO" "$DIST_DIR"
 flatpak build-export --arch=x86_64 "$REPO" "$BUILD" stable

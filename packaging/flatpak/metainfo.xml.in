@@ -8,7 +8,8 @@
   <description>
     <p>
       VooV Meeting is Tencent's international video-conferencing client.
-      This is an unofficial Linux build derived from Tencent Meeting.
+      Tencent ships no Linux build, so this unofficial package runs the
+      official Windows client under Wine.
     </p>
     <p>Release @RELEASE_NAME@.</p>
   </description>
@@ -18,4 +19,10 @@
     <name>Homin Luo</name>
   </developer>
   <content_rating type="oars-1.1" />
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/hominluo/voov-meeting-linux/main/docs/screenshot.png</image>
+      <caption>VooV Meeting login window</caption>
+    </screenshot>
+  </screenshots>
 </component>

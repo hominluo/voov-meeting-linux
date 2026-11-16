@@ -10,43 +10,45 @@ DEB=$DIST_DIR/${APP_ID}_${PKG_VERSION}_amd64.deb
 
 info "staging Debian tree"
 rm -rf "$STAGE"
-mkdir -p "$ROOT_DIR/DEBIAN" "$ROOT_DIR/opt" \
+mkdir -p "$ROOT_DIR/DEBIAN" "$ROOT_DIR/opt/voov-meeting" \
   "$ROOT_DIR/usr/bin" \
   "$ROOT_DIR/usr/share/applications" \
   "$ROOT_DIR/usr/share/doc/$APP_ID"
 
-hardlink_copy "$TREE/opt/voov-meeting" "$ROOT_DIR/opt/voov-meeting"
+hardlink_copy "$APP_TREE" "$ROOT_DIR/opt/voov-meeting/app"
+stage_common "$ROOT_DIR"
 
-for size in 32 64 128 256 512; do
+for size in 32 64 128 256 512 1024; do
   icon=$ROOT/packaging/common/icons/voov-$size.png
   [[ -f $icon ]] || continue
   install -Dm644 "$icon" "$ROOT_DIR/usr/share/icons/hicolor/${size}x${size}/apps/voov-meeting.png"
 done
 install -Dm644 "$ROOT/packaging/common/icons/voov-256.png" "$ROOT_DIR/usr/share/pixmaps/voov-meeting.png"
 
-sed 's|@EXEC@|/opt/voov-meeting/wemeetapp.sh|' \
+sed 's|@EXEC@|/opt/voov-meeting/bin/voov-meeting|' \
   "$ROOT/packaging/common/voov-meeting.desktop.in" > "$ROOT_DIR/usr/share/applications/voov-meeting.desktop"
 
-ln -s /opt/voov-meeting/wemeetapp.sh "$ROOT_DIR/usr/bin/voov-meeting"
+ln -s /opt/voov-meeting/bin/voov-meeting "$ROOT_DIR/usr/bin/voov-meeting"
 
 installed_size=$(du -sk "$ROOT_DIR/opt" | cut -f1)
 sed -e "s|@VERSION@|${PKG_VERSION}|" \
     -e "s|@INSTALLED_SIZE@|$installed_size|" \
     -e "s|@RELEASE_NAME@|$RELEASE_NAME|g" \
     -e "s|@APP_VERSION@|$APP_VERSION|g" \
-    -e "s|@UPSTREAM_VERSION@|$UPSTREAM_VERSION|g" \
+    -e "s|@WINE_VERSION@|$WINE_VERSION|g" \
     "$ROOT/packaging/deb/control.in" > "$ROOT_DIR/DEBIAN/control"
 
 install -m755 "$ROOT/packaging/deb/postinst" "$ROOT_DIR/DEBIAN/postinst"
 install -m755 "$ROOT/packaging/deb/prerm" "$ROOT_DIR/DEBIAN/prerm"
 
+info "writing copyright"
+printf 'VooV Meeting %s (unofficial Linux build)\nVooV Meeting for Windows: %s (running under Wine)\nhttps://github.com/hominluo/voov-meeting-linux\n' "$PKG_VERSION" "$APP_VERSION" \
+  > "$ROOT_DIR/usr/share/doc/$APP_ID/copyright"
+
 info "writing md5sums"
 (cd "$ROOT_DIR" && find . -path ./DEBIAN -prune -o -type f -printf '%P\0' \
   | LC_ALL=C sort -z | xargs -0 md5sum > DEBIAN/md5sums)
 chmod 644 "$ROOT_DIR/DEBIAN/md5sums"
-
-printf 'VooV Meeting %s (unofficial Linux build)\nVooV Meeting release: %s\nBase package: Tencent Meeting %s\nhttps://github.com/hominluo/voov-meeting-linux\n' "$PKG_VERSION" "$RELEASE_NAME" "$UPSTREAM_VERSION" \
-  > "$ROOT_DIR/usr/share/doc/$APP_ID/copyright"
 
 info "compressing (this takes a few minutes)"
 mkdir -p "$DIST_DIR"

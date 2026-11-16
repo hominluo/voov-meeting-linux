@@ -3,19 +3,40 @@
 An unofficial **Linux build of VooV Meeting** — Tencent's international
 video-conferencing client — packaged as `.deb`, `.rpm`, Flatpak and AppImage.
 
-Tencent ships a Linux client only for the China-only *Tencent Meeting*
-product. This project takes Tencent's official Linux package, patches its
-signaling endpoints to the international VooV infrastructure, and repackages it
-with native Linux integration.
+Tencent ships VooV for Windows and macOS, and a Linux client only for the
+China-only *Tencent Meeting* product. This project runs **the real VooV
+Meeting 3.43.0.510 for Windows** — the same build the official installer
+contains — under Wine, with native Linux packaging and desktop integration.
+Nothing is re-implemented and no Tencent Meeting binaries are mixed in.
 
 > **Status: 3.43.0.510 (1) — experimental.**
-> The client starts on X11/XWayland, resolves `conn.voovmeeting.com` for
-> signaling, and reaches the login screen in the `.deb`, AppImage, Flatpak and
-> RPM builds. The login flow itself and in-meeting features have not yet been
-> verified with a VooV account, and the UI still carries Tencent Meeting
-> branding. See [Roadmap](#roadmap).
+> The client starts, shows the VooV login window and loads the embedded login
+> web page (`WeMeetWebCore.dll`). Signing in, joining a meeting, camera,
+> microphone and screen sharing have not been verified yet. See
+> [Roadmap](#roadmap).
 
-![Login screen](docs/screenshot.png)
+![VooV Meeting login window](docs/screenshot.png)
+
+The embedded login page, loaded from VooV's own servers:
+
+![VooV Meeting email login page](docs/login-webview.png)
+
+## How it works
+
+- The application payload is taken from Tencent's official Windows installer,
+  `VooVMeeting_1410000197_3.43.0.510_x86_64.publish.exe`, verified by size,
+  MD5 and SHA-256 before it is used.
+- VooV 3.43 writes databases and preference files next to its own DLLs. The
+  package therefore installs the tree read-only under `/opt/voov-meeting` and
+  the launcher copies it into a per-user Wine prefix on first start
+  (`~/.local/share/voov-meeting/prefix`). On btrfs/XFS the copy is a reflink,
+  so it costs almost no disk space.
+- `SLWGA.dll` is a small MIT-licensed stub ([source](src/slwga)) that provides
+  the Software Licensing API function Wine does not implement. Without it VooV
+  fails at load time.
+- The `.deb`, `.rpm` and Arch packages use the distribution's Wine. The
+  AppImage and Flatpak bundle Wine 11.22 so they also work on systems without
+  one.
 
 ## Install
 
@@ -45,7 +66,6 @@ chmod +x VooV-Meeting-3.43.0.510-1-x86_64.AppImage
 ```
 
 The AppImage needs FUSE 2, or run it with `--appimage-extract-and-run`.
-It uses XWayland under Wayland sessions.
 
 ### Flatpak
 
@@ -65,64 +85,63 @@ makepkg -si
 ```
 
 The PKGBUILD downloads the release `.deb` and installs its contents under
-`/opt/voov-meeting`.
+`/opt/voov-meeting`. `wine` is the only runtime dependency.
 
-## What is patched
+### First start
 
-The application tree is taken unmodified from Tencent's official package
-except for these byte-level patches (all verified against SHA-256 checksums in
-[`patches/patches.json`](patches/patches.json)):
+The first launch creates the Wine prefix and copies the application into it.
+That takes a few seconds and about 1.5 GB of disk space (less with reflinks).
+Later launches reuse the copy. Wine runs the client through XWayland on
+Wayland sessions.
 
-| File | Change |
-| ---- | ------ |
-| `lib/libwemeet_app_sdk.so` | Signaling host `conn.wemeet.tencent.com` → `conn.voovmeeting.com` |
-| `lib/libwemeet_app_sdk.so` | QUIC host `quic.conn.wemeet.qq.com` → `quic.voovmeeting.com` |
-| `lib/libwemeet_app_sdk.so` | Lengths in the adjacent `string_view` table adjusted to match |
-| `wemeetapp.sh` | Launcher no longer forces `LC_ALL=zh_CN.UTF-8` / `TZ=Asia/Shanghai`, and execs the bundled binary by absolute path |
+## Requirements
 
-Everything else — the UI, codecs, plugins, translations — is Tencent's
-3.26.10.401 Linux build.
+- x86_64 Linux with glibc, X11 or XWayland.
+- Wine 9 or newer (`wine`, or `wine64`, in `PATH`) for the `.deb`, `.rpm`
+  and Arch packages (tested with 9.0, 10.0 and 11.22). The AppImage and
+  Flatpak include their own Wine.
+- A working audio server (PipeWire or PulseAudio) for meetings.
 
-### Why not Wine, or a from-scratch client?
+## What is not supported (yet)
 
-The Windows VooV client installs and runs under Wine, but camera, screen
-sharing, audio devices and Wayland integration are all second-class. Tencent's
-native Linux build already solves those problems; only the product/regional
-configuration differs. Patching the shared code path is the smallest change
-that produces a native client.
+- No native Wayland: the window is an XWayland client.
+- Screen sharing and camera access under the Flatpak sandbox are untested.
+- The updater built into VooV may replace files inside the per-user prefix;
+  installing a newer package re-copies the tree but keeps the Wine prefix and
+  the login state.
+- VooV's own "open in meeting" URL handlers are passed through by the desktop
+  file but untested.
 
 ## Build from source
 
 Requirements:
 
-- `bash`, `python3`, `ar`, `tar`, `xz`, `binutils`
-- ~4 GB free disk space (the app tree is 672 MB and is staged several times)
-- For packaging: `flatpak` + Freedesktop SDK for Flatpak, Docker for RPM,
+- `bash`, `curl`, `tar`, `xz`, `ar`
+- ~8 GB free disk space (the app tree is 806 MB and the bundled Wine 746 MB;
+  each format stages both before compressing)
+- For packaging: `flatpak` + the Freedesktop SDK for Flatpak, Docker for RPM,
   `appimagetool` (downloaded automatically) for AppImage
+- Wine for testing (the build itself only needs it for AppImage/Flatpak, where
+  the portable build is downloaded automatically)
 
 ```bash
 git clone https://github.com/hominluo/voov-meeting-linux
 cd voov-meeting-linux
 
-# 1. Download Tencent's official Linux package and put it in vendor/:
-#    https://meeting.tencent.com/download-center.html
-#    (file: TencentMeeting_0300000000_3.26.10.401_x86_64_default.publish.officialwebsite.deb)
-mkdir -p vendor
-cp ~/Downloads/TencentMeeting_0300000000_3.26.10.401_x86_64_default.publish.officialwebsite.deb vendor/
-
-# 2. Extract + patch into build/tree
+# 1. Download + verify the official Windows installer and unpack it
 ./scripts/prepare.sh
 
-# 3. Build one or all formats into dist/
+# 2. Build one or all formats into dist/
 ./scripts/build-deb.sh
 ./scripts/build-appimage.sh
 ./scripts/build-flatpak.sh
 ./scripts/build-rpm.sh
 ```
 
-`scripts/prepare.sh` verifies the upstream `.deb` SHA-256 before doing
-anything, and `scripts/apply-patches.py` refuses to patch a file it does not
-recognize. Both are safe to re-run.
+`prepare.sh` downloads the installer if it is not in `vendor/` or
+`~/Downloads/`, checks its size, MD5 and SHA-256, and unpacks it with 7-Zip
+(a standalone copy is downloaded if `7zz`/`7z` is not installed). It is safe
+to re-run.
 
 ## Versioning
 
@@ -138,19 +157,18 @@ not allow spaces or parentheses. See [RELEASING.md](RELEASING.md).
 
 ## Roadmap
 
-- [x] Native client on Wayland/XWayland
-- [x] VooV signaling endpoint
+- [x] Real VooV Meeting 3.43 application (Windows build) under Wine
+- [x] Login window and embedded login web page
 - [ ] Verify VooV account login end-to-end
-- [ ] Switch the remaining product endpoints (`report.*`, API host) to VooV
-- [ ] VooV branding in the login screen and window title
-- [ ] Replace Tencent Meeting assets/icons where VooV has different ones
-- [ ] Verify camera, microphone, screen share and meeting join
+- [ ] Verify joining a meeting, camera, microphone, screen sharing
+- [ ] Flatpak screen sharing through the portal
 
 ## Legal
 
-The scripts, patches and packaging in this repository are MIT licensed
-(see [LICENSE](LICENSE)). The bundled application is proprietary Tencent
-software and is **not** covered by the MIT license — see [NOTICE](NOTICE).
+The scripts, the `SLWGA.dll` stub and the packaging in this repository are MIT
+licensed (see [LICENSE](LICENSE)). The bundled application is proprietary
+Tencent software and is **not** covered by the MIT license — see
+[NOTICE](NOTICE).
 
 This is an unofficial community project, not affiliated with or supported by
 Tencent. VooV Meeting and Tencent Meeting are trademarks of Tencent.
