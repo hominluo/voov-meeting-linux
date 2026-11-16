@@ -8,8 +8,10 @@
   <description>
     <p>
       VooV Meeting is Tencent's international video-conferencing client.
-      Tencent ships no Linux build, so this unofficial package runs the
-      official Windows client under Wine.
+      Tencent ships VooV only for Windows and macOS, so this unofficial
+      package republishes Tencent's official Linux client with small binary
+      patches that switch it to VooV's regional settings and endpoints. It
+      runs natively — no Wine.
     </p>
     <p>Release @RELEASE_NAME@.</p>
   </description>

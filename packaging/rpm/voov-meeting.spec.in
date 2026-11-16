@@ -1,28 +1,34 @@
 Name:           voov-meeting
 Version:        @VERSION@
 Release:        @RELEASE@
-Summary:        Unofficial VooV Meeting Linux client (Wine)
+Summary:        Unofficial native VooV Meeting Linux client (patched Tencent Meeting)
 License:        Proprietary
 URL:            https://github.com/hominluo/voov-meeting-linux
 BuildArch:      x86_64
 AutoReqProv:    no
 
-Requires:       wine
+Requires:       nss
+Requires:       libX11
+Requires:       pulseaudio-libs
+Requires:       libgcrypt
+Requires:       dbus-libs
+Requires:       systemd-libs
 Requires:       desktop-file-utils
 
 %define _binary_payload w9.xzdio
-# The bundled PE files are not ELF and carry no usable RPM dependencies;
-# AutoReqProv is off and the payload is installed verbatim.
+# The payload is Tencent's Qt application tree; AutoReqProv is off and the
+# files are installed verbatim.
 %define __arch_install_post %{nil}
 %global debug_package %{nil}
 
 %description
 VooV Meeting is Tencent's international video-conferencing client.
 
-Tencent does not ship a Linux client, so this package runs the official
-VooV Meeting @VERSION@ for Windows under Wine and adds native Linux desktop
-integration. The client is installed read-only under /opt and copied into a
-per-user Wine prefix on first start.
+Tencent ships VooV only for Windows and macOS; its official Linux client is
+the China-only Tencent Meeting. This package takes that official client
+(Tencent Meeting @VERSION@ for Linux), patches its regional settings and
+endpoint tables so it connects to VooV's servers, and packages it with native
+Linux desktop integration. No Wine is involved.
 
 This is an unofficial community build. The bundled application is proprietary
 Tencent software; only the packaging and helper scripts are MIT licensed.
@@ -41,4 +47,4 @@ cp -a /src/build/rpm-root/. %{buildroot}/
 
 %changelog
 * Mon Nov 16 2026 Homin Luo <homin.ro@gmail.com> - @VERSION@-@RELEASE@
-- VooV Meeting @VERSION@ (Windows build) running under Wine
+- Native VooV Meeting @VERSION@ (patched Tencent Meeting for Linux)

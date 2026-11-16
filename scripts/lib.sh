@@ -6,58 +6,37 @@ ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 BUILD_DIR=${BUILD_DIR:-$ROOT/build}
 DIST_DIR=${DIST_DIR:-$ROOT/dist}
 VENDOR_DIR=${VENDOR_DIR:-$ROOT/vendor}
-TREE=$BUILD_DIR/tree
-APP_TREE=$TREE/app
+TREE=$BUILD_DIR/tree          # patched application tree (contents of /opt/wemeet)
+APP_TREE=$TREE
 
 APP_ID=voov-meeting
 APP_NAME="VooV Meeting"
 
 # Release versioning (see RELEASING.md):
-#   the version is the VooV Meeting product version, with our own build
-#   counter in parentheses: 3.43.0.510 (1), 3.43.0.510 (2), ...
+#   the version is the Tencent Meeting for Linux base version this project is
+#   built from, with our own build counter in parentheses:
+#   3.26.10.401 (1), 3.26.10.401 (2), ...
 # Package managers cannot use spaces/parentheses, so packages and tags use
-# 3.43.0.510-1 / v3.43.0.510-1 instead.
-VOO_V_VERSION=3.43.0.510
+# 3.26.10.401-1 / v3.26.10.401-1 instead.
+TM_VERSION=3.26.10.401
 BUILD_NUMBER=1
-APP_VERSION=$VOO_V_VERSION
-RELEASE_NAME="$VOO_V_VERSION ($BUILD_NUMBER)"
-PKG_VERSION="$VOO_V_VERSION-$BUILD_NUMBER"
+APP_VERSION=$TM_VERSION
+RELEASE_NAME="$TM_VERSION ($BUILD_NUMBER)"
+PKG_VERSION="$TM_VERSION-$BUILD_NUMBER"
 
-# Official VooV Meeting for Windows, the application we run under Wine.
-# The download URL comes from VooV's own download API:
-#   https://voovmeeting.com/web-service/query-download-info?q=...&nonce=...
-# with {"package-type":"app","channel":"1410000197","platform":"windows",
-#       "arch":"x86_64","decorators":["intl"]}.
-VOO_CHANNEL=1410000197
-VOO_EXE=VooVMeeting_${VOO_CHANNEL}_${VOO_V_VERSION}_x86_64.publish.exe
-VOO_EXE_SIZE=281696512
-VOO_EXE_MD5=a8d7f83c02853ae055ae5f9cfdcae781
-VOO_EXE_SHA256=92649c45d6d46e38bdf0142bb9884f8c69a9cf4013c8816ce3a200dc60a330fc
-VOO_EXE_URL=https://updatecdn.meeting.qq.com/cos/$VOO_EXE_MD5/$VOO_EXE
-
-# The macOS build is not shipped, but its icon is the VooV branding used by
-# this project (the Windows installer carries no usable icon).
-VOO_DMG=VooVMeeting_1410000198_${VOO_V_VERSION}.publish.x86_64.dmg
-VOO_DMG_SIZE=245494002
-VOO_DMG_MD5=09ec308a02c61e0ede83ffac486e5cea
-
-# Portable Wine, used by the AppImage and Flatpak builds (the .deb, .rpm and
-# Arch packages use the distribution's Wine). Upstream:
-# https://github.com/Kron4ek/Wine-Builds
-WINE_VERSION=11.22
-WINE_TARBALL=wine-$WINE_VERSION-amd64.tar.xz
-WINE_SHA256=cdaaa76c218359d486eb35968892a4c466623b137ed0931ee3f31465ec6539e0
-WINE_URL=https://github.com/Kron4ek/Wine-Builds/releases/download/$WINE_VERSION/$WINE_TARBALL
-
-# Standalone 7-Zip, used to unpack the NSIS-based Windows installer.
-SEVENZ_TARBALL=7z2501-linux-x64.tar.xz
-SEVENZ_SHA256=4ca3b7c6f2f67866b92622818b58233dc70367be2f36b498eb0bdeaaa44b53f4
-SEVENZ_URL=https://www.7-zip.org/a/$SEVENZ_TARBALL
+# Official Tencent Meeting for Linux (China channel 0300000000), the
+# application this project patches into VooV. The URL is Tencent's update CDN;
+# Content-Length matches TM_DEB_SIZE (verified 2026-11-16).
+TM_DEB=TencentMeeting_0300000000_${TM_VERSION}_x86_64_default.publish.officialwebsite.deb
+TM_DEB_SIZE=197268516
+TM_DEB_MD5=72e0e0023e1d1e6d4123fba28821aea1
+TM_DEB_SHA256=70f37b029209c0ef91be9813eebf6650c6cb9a00f7c718490158773e2fe6acaf
+TM_DEB_URL=https://updatecdn.meeting.qq.com/cos/$TM_DEB_MD5/$TM_DEB
 
 die() { echo "error: $*" >&2; exit 1; }
 info() { echo "==> $*" >&2; }
 
-# cp -al when possible: the app tree is ~800 MB and gets staged several times.
+# cp -al when possible: the app tree is ~700 MB and gets staged several times.
 # Staged files are never modified in place, so hard links are safe.
 hardlink_copy() {
   local src=$1 dst=$2
@@ -65,8 +44,8 @@ hardlink_copy() {
   cp -al "$src" "$dst" 2>/dev/null || cp -a "$src" "$dst"
 }
 
-# Copy for the runtime tree. Reflinks make the per-user app copy nearly free on
-# btrfs/XFS; on other filesystems GNU cp falls back to a normal copy.
+# Copy for runtime trees. Reflinks make copies nearly free on btrfs/XFS; on
+# other filesystems GNU cp falls back to a normal copy.
 reflink_copy() {
   local src=$1 dst=$2
   rm -rf "$dst"
@@ -74,22 +53,12 @@ reflink_copy() {
 }
 
 ensure_tree() {
-  if [[ ! -f $APP_TREE/.voov-manifest ]]; then
+  if [[ ! -f $APP_TREE/.voov-provenance ]]; then
     "$ROOT/scripts/prepare.sh" "$@"
   fi
 }
 
-# ensure_wine_tree: extract the portable Wine build into $TREE/wine.
-ensure_wine_tree() {
-  "$ROOT/scripts/fetch-wine.sh"
-}
-
-# AppImage and Flatpak ship Wine themselves; they need it staged.
-ensure_bundled_wine() {
-  ensure_wine_tree
-}
-
-# stage_common <root>: launcher plus the version marker it compares on upgrade.
+# stage_common <root>: launcher plus the version marker it reports on upgrade.
 stage_common() {
   local dest=$1
   install -Dm755 "$ROOT/overlay/voov-meeting.sh" "$dest/opt/voov-meeting/bin/voov-meeting"

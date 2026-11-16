@@ -4,18 +4,19 @@ Section: net
 Priority: optional
 Architecture: amd64
 Installed-Size: @INSTALLED_SIZE@
-Depends: wine | wine64, desktop-file-utils
+Depends: libnss3, libx11-6, desktop-file-utils, libpulse0, libgcrypt20, libdbus-1-3, libsystemd0, libudev1
 Recommends: xdg-utils, libnotify-bin
 Suggests: pipewire
 Maintainer: Homin Luo <homin.ro@gmail.com>
 Homepage: https://github.com/hominluo/voov-meeting-linux
-Description: VooV Meeting (unofficial Linux build)
+Description: VooV Meeting (unofficial native Linux build)
  VooV Meeting is Tencent's international video-conferencing client.
  .
- Tencent does not ship a Linux client, so this package runs the official
- VooV Meeting @APP_VERSION@ for Windows under Wine and adds native Linux
- desktop integration. The client is installed read-only under /opt and
- copied into a per-user Wine prefix on first start.
+ Tencent ships VooV only for Windows and macOS; its official Linux client
+ is the China-only Tencent Meeting. This package takes that official client
+ (Tencent Meeting @APP_VERSION@ for Linux), patches its regional settings
+ and endpoint tables so it connects to VooV's servers, and packages it with
+ native Linux desktop integration. No Wine is involved.
  .
  This is an unofficial community build. The bundled application is
  proprietary Tencent software; only the packaging and helper scripts are

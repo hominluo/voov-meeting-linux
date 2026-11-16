@@ -22,12 +22,12 @@ done
 install -Dm644 "$ROOT/packaging/common/icons/voov-256.png" "$STAGE/usr/share/pixmaps/voov-meeting.png"
 sed 's|@EXEC@|/opt/voov-meeting/bin/voov-meeting|' \
   "$ROOT/packaging/common/voov-meeting.desktop.in" > "$STAGE/usr/share/applications/voov-meeting.desktop"
-printf 'VooV Meeting %s (unofficial Linux build)\nVooV Meeting for Windows: %s (running under Wine)\nhttps://github.com/hominluo/voov-meeting-linux\n' \
+printf 'VooV Meeting %s (unofficial native Linux build)\nBased on Tencent Meeting for Linux %s, patched to connect to VooV (see NOTICE)\nhttps://github.com/hominluo/voov-meeting-linux\n' \
   "$PKG_VERSION" "$APP_VERSION" > "$STAGE/usr/share/doc/voov-meeting/copyright"
 
 info "writing spec"
 mkdir -p "$BUILD_DIR"
-sed -e "s|@VERSION@|$VOO_V_VERSION|g" \
+sed -e "s|@VERSION@|$TM_VERSION|g" \
     -e "s|@RELEASE@|$BUILD_NUMBER|g" \
     "$ROOT/packaging/rpm/voov-meeting.spec.in" > "$SPEC"
 

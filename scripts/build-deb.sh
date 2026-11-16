@@ -35,14 +35,13 @@ sed -e "s|@VERSION@|${PKG_VERSION}|" \
     -e "s|@INSTALLED_SIZE@|$installed_size|" \
     -e "s|@RELEASE_NAME@|$RELEASE_NAME|g" \
     -e "s|@APP_VERSION@|$APP_VERSION|g" \
-    -e "s|@WINE_VERSION@|$WINE_VERSION|g" \
     "$ROOT/packaging/deb/control.in" > "$ROOT_DIR/DEBIAN/control"
 
 install -m755 "$ROOT/packaging/deb/postinst" "$ROOT_DIR/DEBIAN/postinst"
 install -m755 "$ROOT/packaging/deb/prerm" "$ROOT_DIR/DEBIAN/prerm"
 
 info "writing copyright"
-printf 'VooV Meeting %s (unofficial Linux build)\nVooV Meeting for Windows: %s (running under Wine)\nhttps://github.com/hominluo/voov-meeting-linux\n' "$PKG_VERSION" "$APP_VERSION" \
+printf 'VooV Meeting %s (unofficial native Linux build)\nBased on Tencent Meeting for Linux %s, patched to connect to VooV (see NOTICE)\nhttps://github.com/hominluo/voov-meeting-linux\n' "$PKG_VERSION" "$APP_VERSION" \
   > "$ROOT_DIR/usr/share/doc/$APP_ID/copyright"
 
 info "writing md5sums"

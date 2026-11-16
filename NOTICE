@@ -1,35 +1,35 @@
 # NOTICE
 
-This repository contains build scripts, a Wine compatibility stub and packaging
-files licensed under the MIT license (see LICENSE).
+This repository contains build scripts and packaging files licensed under the
+MIT license (see LICENSE).
 
 The release artifacts also contain an application tree taken from Tencent's
-official VooV Meeting for Windows installer:
+official Linux client:
 
-    VooV Meeting 3.43.0.510
-    VooVMeeting_1410000197_3.43.0.510_x86_64.publish.exe
-    https://updatecdn.meeting.qq.com/cos/a8d7f83c02853ae055ae5f9cfdcae781/
+    Tencent Meeting 3.26.10.401 (Linux, channel 0300000000)
+    TencentMeeting_0300000000_3.26.10.401_x86_64_default.publish.officialwebsite.deb
+    https://updatecdn.meeting.qq.com/cos/72e0e0023e1d1e6d4123fba28821aea1/TencentMeeting_0300000000_3.26.10.401_x86_64_default.publish.officialwebsite.deb
 
-That application, including all libraries, resources, fonts and other assets in
+That application, including all libraries, resources and other assets under
 `/opt/voov-meeting/app`, is proprietary software:
 
     Copyright (c) Tencent. All rights reserved.
     VooV Meeting and Tencent Meeting are trademarks of Tencent.
 
-Nothing in the MIT license grants rights to those binaries. They are
-redistributed unmodified under the terms Tencent offers for its official
-installer, with two packaging-time additions that are not part of Tencent's
-build:
+Nothing in the MIT license grants rights to those binaries. Two of its
+libraries are redistributed **patched** by this project; the patches are
+described in `docs/REVERSE-ENGINEERING.md` and applied by
+`scripts/patch-linux-build.py`:
 
-- four copies of Tencent's own executables under the names VooV expects at
-  runtime (`voovmeetinglauncher.exe`, `voovmeetingapp.exe`,
-  `WeMeetWebview.exe`), byte-identical to the installed originals;
-- `SLWGA.dll`, our MIT-licensed stub (see `src/slwga/`).
+- `libwemeet_platform.so` — `default_settings()` is redirected to a code cave
+  that forces the two overseas flags (`+0x420`, `+0x4c8`) in the settings
+  object;
+- `libwemeet_app_sdk.so` — the build-time endpoint strings
+  `conn.wemeet.tencent.com` and `quic.conn.wemeet.qq.com` are replaced with
+  `conn.voovmeeting.com` and `quic.voovmeeting.com`.
 
-The AppImage and Flatpak bundles additionally contain Wine 11.22 from
-[Kron4ek's Wine builds](https://github.com/Kron4ek/Wine-Builds). Wine is free
-software under the GNU Lesser General Public License, version 2.1 or later.
-Source code: <https://www.winehq.org>.
+No other file is modified. The only additions to the application tree are our
+MIT-licensed launcher (`bin/voov-meeting`) and a `VERSION` marker file.
 
 If you are a rights holder and want an artifact removed, open an issue.
 

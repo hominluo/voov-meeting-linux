@@ -1,21 +1,20 @@
 # Maintainer: Homin Luo <homin.ro@gmail.com>
 # Arch Linux package for the unofficial VooV Meeting Linux build.
-# The release version tracks the VooV Meeting product version; pkgrel is the
-# same counter as the "(N)" suffix on GitHub releases.
+# pkgver tracks the Tencent Meeting for Linux version the client is built
+# from; pkgrel is the same counter as the "(N)" suffix on GitHub releases.
 pkgname=voov-meeting
-pkgver=3.43.0.510
+pkgver=3.26.10.401
 pkgrel=1
-pkgdesc="Unofficial VooV Meeting Linux client (official Windows build under Wine)"
+pkgdesc="Unofficial native VooV Meeting Linux client (patched Tencent Meeting)"
 arch=('x86_64')
 url="https://github.com/hominluo/voov-meeting-linux"
 license=('custom:proprietary')
-depends=('wine')
-optdepends=('desktop-file-utils: refresh the desktop database on install'
-            'libnotify: first-run progress notification')
+depends=('nss' 'libx11' 'libpulse' 'libgcrypt' 'dbus' 'systemd' 'desktop-file-utils')
+optdepends=('libnotify: desktop notifications')
 options=('!strip' '!debug')
 install=voov-meeting.install
 source=("voov-meeting_${pkgver}-${pkgrel}_amd64.deb::${url}/releases/download/v${pkgver}-${pkgrel}/voov-meeting_${pkgver}-${pkgrel}_amd64.deb")
-sha256sums=('f11e212d2798265d869697c03694cd1818bd83d5d7911997a9106b57a95f7f13')
+sha256sums=('7a99ae5c2ee93e1219c8bdab8933c68039482a0fe40e3e14b7f2a1fba16c067a')
 
 package() {
   cd "$srcdir"

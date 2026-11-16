@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Build a Flatpak bundle (single-file .flatpak) with flatpak build-* tools.
-# flatpak-builder is not required. Wine is bundled.
+# flatpak-builder is not required. The client ships its own Qt; the Chromium
+# sandbox of the embedded browser is disabled because it cannot run inside
+# the Flatpak sandbox.
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 ensure_tree "$@"
-ensure_bundled_wine
 
 APP_ID_FLATPAK=com.voovmeeting.VooVMeeting
 RUNTIME=org.freedesktop.Platform
@@ -19,17 +20,17 @@ rm -rf "$BUILD" "$REPO"
 flatpak build-init "$BUILD" "$APP_ID_FLATPAK" "$SDK" "$RUNTIME" "$BRANCH"
 
 APPDIR=$BUILD/files
-mkdir -p "$APPDIR/bin" "$APPDIR/opt/voov-meeting/lib" \
+mkdir -p "$APPDIR/bin" "$APPDIR/opt/voov-meeting" \
   "$APPDIR/share/applications" \
   "$APPDIR/share/icons/hicolor/256x256/apps" "$APPDIR/share/metainfo"
 
 info "copying application tree"
 hardlink_copy "$APP_TREE" "$APPDIR/opt/voov-meeting/app"
-hardlink_copy "$TREE/wine" "$APPDIR/opt/voov-meeting/lib/wine"
 stage_common "$APPDIR"
 
 cat > "$APPDIR/bin/voov-meeting" <<'EOF'
 #!/bin/bash
+export QTWEBENGINE_DISABLE_SANDBOX=1
 exec /app/opt/voov-meeting/bin/voov-meeting "$@"
 EOF
 chmod 755 "$APPDIR/bin/voov-meeting"

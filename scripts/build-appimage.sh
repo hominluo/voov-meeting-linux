@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Build a portable AppImage. Unlike the distro packages, the AppImage bundles
-# Wine so it runs on systems without one installed.
+# Build a portable AppImage. Unlike the distro packages, the AppImage is fully
+# self-contained: the client ships with its own Qt, so nothing but FUSE (or
+# --appimage-extract-and-run) is needed.
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 ensure_tree "$@"
-ensure_bundled_wine
 
 TOOL_DIR=$BUILD_DIR/tools
 TOOL=$TOOL_DIR/appimagetool-x86_64.AppImage
@@ -19,9 +19,8 @@ fi
 APPDIR=$BUILD_DIR/AppDir
 info "staging AppDir"
 rm -rf "$APPDIR"
-mkdir -p "$APPDIR/opt/voov-meeting/lib"
+mkdir -p "$APPDIR/opt/voov-meeting"
 hardlink_copy "$APP_TREE" "$APPDIR/opt/voov-meeting/app"
-hardlink_copy "$TREE/wine" "$APPDIR/opt/voov-meeting/lib/wine"
 stage_common "$APPDIR"
 
 install -m755 "$ROOT/packaging/appimage/AppRun" "$APPDIR/AppRun"
