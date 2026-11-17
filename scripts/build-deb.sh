@@ -18,11 +18,13 @@ mkdir -p "$ROOT_DIR/DEBIAN" "$ROOT_DIR/opt/voov-meeting" \
 hardlink_copy "$APP_TREE" "$ROOT_DIR/opt/voov-meeting/app"
 stage_common "$ROOT_DIR"
 
-for size in 32 64 128 256 512 1024; do
+for size in 16 32 64 128 256 512 1024; do
   icon=$ROOT/packaging/common/icons/voov-$size.png
   [[ -f $icon ]] || continue
   install -Dm644 "$icon" "$ROOT_DIR/usr/share/icons/hicolor/${size}x${size}/apps/voov-meeting.png"
 done
+install -Dm644 "$ROOT/packaging/common/icons/voov.svg" \
+  "$ROOT_DIR/usr/share/icons/hicolor/scalable/apps/voov-meeting.svg"
 install -Dm644 "$ROOT/packaging/common/icons/voov-256.png" "$ROOT_DIR/usr/share/pixmaps/voov-meeting.png"
 
 sed 's|@EXEC@|/opt/voov-meeting/bin/voov-meeting|' \

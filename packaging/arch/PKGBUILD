@@ -14,7 +14,7 @@ optdepends=('libnotify: desktop notifications')
 options=('!strip' '!debug')
 install=voov-meeting.install
 source=("voov-meeting_${pkgver}-${pkgrel}_amd64.deb::${url}/releases/download/v${pkgver}-${pkgrel}/voov-meeting_${pkgver}-${pkgrel}_amd64.deb")
-sha256sums=('7a99ae5c2ee93e1219c8bdab8933c68039482a0fe40e3e14b7f2a1fba16c067a')
+sha256sums=('16af780c727929c2d23acc1befbe434eb2380bd5233e7c9fbdcac4b9c4caaf21')
 
 package() {
   cd "$srcdir"

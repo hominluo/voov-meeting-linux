@@ -39,8 +39,14 @@ sed -e 's|@EXEC@|voov-meeting|' \
     -e "s|^Icon=.*|Icon=$APP_ID_FLATPAK|" \
     "$ROOT/packaging/common/voov-meeting.desktop.in" \
   > "$APPDIR/share/applications/$APP_ID_FLATPAK.desktop"
-install -m644 "$ROOT/packaging/common/icons/voov-256.png" \
-  "$APPDIR/share/icons/hicolor/256x256/apps/$APP_ID_FLATPAK.png"
+for size in 16 32 64 128 256 512; do
+  icon=$ROOT/packaging/common/icons/voov-$size.png
+  [[ -f $icon ]] || continue
+  install -Dm644 "$icon" \
+    "$APPDIR/share/icons/hicolor/${size}x${size}/apps/$APP_ID_FLATPAK.png"
+done
+install -Dm644 "$ROOT/packaging/common/icons/voov.svg" \
+  "$APPDIR/share/icons/hicolor/scalable/apps/$APP_ID_FLATPAK.svg"
 sed -e "s|@APP_ID@|$APP_ID_FLATPAK|g" \
     -e "s|@RELEASE_NAME@|$RELEASE_NAME|g" \
     "$ROOT/packaging/flatpak/metainfo.xml.in" > "$APPDIR/share/metainfo/$APP_ID_FLATPAK.metainfo.xml"

@@ -7,3 +7,5 @@ vendor/
 *.flatpak
 *.pkg.tar.zst
 __pycache__/
+packaging/arch/pkg/
+packaging/arch/src/

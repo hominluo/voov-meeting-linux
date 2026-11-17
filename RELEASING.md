@@ -37,8 +37,8 @@ dash form so it stays a valid package version and filename.
    `scripts/prepare.sh` refuses a `.deb` whose size, MD5 or SHA-256 does not
    match the constants.
 3. `scripts/patch-linux-build.py` asserts the exact sizes and original bytes
-   of the two patched libraries. A new upstream base needs its offsets
-   re-derived — the method is documented in
+   of the patched binaries and resource packs. A new upstream base needs its
+   offsets re-derived — the method is documented in
    [docs/REVERSE-ENGINEERING.md](docs/REVERSE-ENGINEERING.md).
 4. Update `pkgver` and the `.deb` checksum in `packaging/arch/PKGBUILD`.
 5. Update the release notes in `docs/releases/`.

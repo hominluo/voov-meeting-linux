@@ -6,36 +6,49 @@ Arch package. **No Wine.**
 
 Tencent ships VooV only for Windows and macOS. Its official Linux client is
 the China-only *Tencent Meeting*. This project takes that official Linux
-client, applies two small binary patches that switch its regional settings
-and endpoint tables to the VooV side, and packages it with native Linux
-desktop integration.
+client, applies a small set of binary patches that switch its product identity,
+deployment and endpoint tables to the VooV side, and packages it with native
+Linux desktop integration.
 
 > **Status: 3.26.10.401 (1) — experimental.**
-> The patched client starts natively and establishes its signaling connection
-> to `conn.voovmeeting.com`, VooV's server fleet. Signing in with a VooV
-> account, joining meetings, camera, microphone and screen sharing have not
-> been verified yet. See [Roadmap](#roadmap).
+> The patched client starts natively, connects to VooV's server fleet, and
+> **VooV login works end-to-end** through the in-app WeChat QR flow and the
+> phone-number form. Joining meetings, camera, microphone and screen sharing
+> are not verified yet. See [Roadmap](#roadmap).
 
-![VooV Meeting (patched Tencent Meeting) running on Linux](docs/screenshot.png)
+![VooV Meeting on Linux — login screen](docs/screenshot.png)
 
 ## How it works
 
 - The application payload is Tencent's official Linux client
   `TencentMeeting_0300000000_3.26.10.401_x86_64_default.publish.officialwebsite.deb`
   (197,268,516 bytes, SHA-256 `70f37b02…6eacaf`), verified before use.
-- Two patches are applied to two libraries; the full analysis is in
-  [docs/REVERSE-ENGINEERING.md](docs/REVERSE-ENGINEERING.md) and the patcher
-  is `scripts/patch-linux-build.py` (idempotent, asserts original bytes):
+- The patcher (`scripts/patch-linux-build.py`, idempotent, asserts original
+  bytes) re-identifies the client as VooV. The full analysis is in
+  [docs/REVERSE-ENGINEERING.md](docs/REVERSE-ENGINEERING.md); in short:
   1. **`libwemeet_platform.so`** — `default_settings()` is hooked (code cave
      at `0x1706400`) so the two overseas flags in the settings object are
-     always set: `+0x420` makes `InitSDK` select the VooV signaling endpoints,
-     `+0x4c8` is the field `IsVooVVersion()` reads.
+     always set: `+0x420` makes `InitSDK` select the VooV signaling
+     endpoints, `+0x4c8` is the field `IsVooVVersion()` reads.
   2. **`libwemeet_app_sdk.so`** — the build-time endpoint table entries
      `conn.wemeet.tencent.com` / `quic.conn.wemeet.qq.com` become
-     `conn.voovmeeting.com` / `quic.voovmeeting.com` (the bootstrap host comes
-     from a static `{length, pointer}` table, not from a flag).
-- The patched client then connects to `conn.voovmeeting.com` — verified with
-  an `LD_PRELOAD` `getaddrinfo`/`connect` tracer (`scripts/netlog.c`).
+     `conn.voovmeeting.com` / `quic.voovmeeting.com` (the bootstrap host
+     comes from a static `{length, pointer}` table, not from a flag).
+  3. **Channel** `0300000000` → `1410000197` in three libraries, so VooV's
+     backend sees a VooV client.
+  4. **Branding** — `腾讯会议` → `VooV Meeting` in the UI resource packs
+     (window title included); the resource md5 constants are updated.
+  5. **WeChat login** — the QR-login pages load from `voovmeeting.com`
+     instead of the China deployment, so the callback completes a VooV login.
+  6. **Product identity** — `TM_Product_App` → `TM_Product_VooV`, so a
+     VooV-linked WeChat account is not treated as a foreign account.
+  7. **Deployment identity** — publish channel `TencentInside` → `Overseas`
+     and CGI gateway `work.medialab.qq.com` → `api.voovmeeting.com`; this is
+     what makes `POST /v2/account/login/auth-code` return `code: 0`.
+  8. **Login page logo** — the four login bitmaps are replaced with the VooV
+     artwork from the genuine VooV build.
+- The patched client connects to `conn.voovmeeting.com` — verified with an
+  `LD_PRELOAD` `getaddrinfo`/`connect` tracer (`scripts/netlog.c`).
 - Everything else — the bundled Qt runtime, codecs, plugins — is Tencent's
   own, unmodified.
 - The client writes its data to the standard XDG directories and never into
@@ -109,15 +122,16 @@ launcher's own behavior.
 
 ## What is not supported (yet)
 
-- Signing in with a VooV account and joining meetings are **unverified** —
-  the build still reports version 3.26.10.401 and channel `0300000000`, and
-  whether VooV's servers accept that identity is the main open question.
-- The window title and parts of the UI still show 腾讯会议 (the China
-  product's branding).
+- Joining a meeting and the media path (camera, microphone, screen sharing)
+  are **unverified**; login itself is verified end-to-end.
 - The update and telemetry endpoints still point at Tencent Meeting's China
   servers (`report.meeting.tencent.com`, `updatecdn.meeting.qq.com`) —
   cosmetic, not the meeting channel.
 - No native Wayland: the window is an XWayland client.
+
+A note on phone login: the dial-code picker contains all 213 regions and is
+searchable. It opens filtered by the current code (`+86`), so clear that entry
+and type another code or region name to reach other countries.
 
 ## Build from source
 
@@ -158,18 +172,18 @@ not allow spaces or parentheses. See [RELEASING.md](RELEASING.md).
 ## Roadmap
 
 - [x] Native client (no Wine) connecting to VooV's signaling fleet
-- [ ] Verify VooV account login end-to-end
+- [x] VooV account login end-to-end (in-app WeChat QR, phone number)
+- [x] VooV branding: window title, UI strings, icons, login page logo
 - [ ] Verify joining a meeting, camera, microphone, screen sharing
-- [ ] VooV branding: window title, UI strings, icons
-- [ ] Patch the remaining China-only endpoints (update/report)
+- [ ] Patch the remaining China-only update/report endpoints
 - [ ] arm64 build (Tencent ships an official arm64 Linux client)
 
 ## Legal
 
 The scripts and packaging in this repository are MIT licensed (see
 [LICENSE](LICENSE)). The bundled application is proprietary Tencent software
-and is **not** covered by the MIT license; two of its libraries are
-redistributed in patched form — see [NOTICE](NOTICE).
+and is **not** covered by the MIT license; its patched libraries, resource
+packs and logo bitmaps are redistributed in patched form — see [NOTICE](NOTICE).
 
 This is an unofficial community project, not affiliated with or supported by
 Tencent. VooV Meeting and Tencent Meeting are trademarks of Tencent.

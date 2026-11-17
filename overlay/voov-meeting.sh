@@ -16,10 +16,17 @@ if [[ ! -x $app/bin/wemeetapp ]]; then
   exit 1
 fi
 
-# On Wayland sessions the client runs through XWayland, matching the official
-# launcher (its Wayland path needs Tencent's own x11-wayland integration).
-if [[ ${XDG_SESSION_TYPE:-} = wayland && -z ${QT_QPA_PLATFORM:-} ]]; then
+# On Wayland sessions the client must run through XWayland. Its X11 helper
+# code (QtX11Extras) breaks under the Qt Wayland platform: QX11Info::display()
+# returns the wl_display and the first Xlib call on that path (XInternAtom in
+# x_utils::SetStayOnTop, used by the WeChat-login view) segfaults. Environments
+# like Omarchy preset QT_QPA_PLATFORM=wayland;xcb, so it is overridden
+# unconditionally — the same thing Tencent's official wemeetapp.sh does.
+if [[ ${XDG_SESSION_TYPE:-} = wayland ]]; then
   export QT_QPA_PLATFORM=xcb
+  export XDG_SESSION_TYPE=x11
+  export WEMEET_XWAYLAND=1
+  unset WAYLAND_DISPLAY
 fi
 
 export LD_LIBRARY_PATH=$app/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}

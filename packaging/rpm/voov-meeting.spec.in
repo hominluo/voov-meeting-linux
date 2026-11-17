@@ -42,6 +42,7 @@ cp -a /src/build/rpm-root/. %{buildroot}/
 /usr/bin/voov-meeting
 /usr/share/applications/voov-meeting.desktop
 /usr/share/icons/hicolor/*/apps/voov-meeting.png
+/usr/share/icons/hicolor/scalable/apps/voov-meeting.svg
 /usr/share/pixmaps/voov-meeting.png
 /usr/share/doc/voov-meeting
 
