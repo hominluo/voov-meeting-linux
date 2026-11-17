@@ -1,0 +1,32 @@
+# Maintainer: Homin Luo <homin.ro@gmail.com>
+# Binary repackage of the unofficial native VooV Meeting client. The payload is
+# Tencent's official Linux Tencent Meeting build re-identified as VooV by
+# https://github.com/hominluo/voov-meeting-linux.
+
+pkgname=voov-meeting-bin
+pkgver=3.26.10.401
+pkgrel=1
+pkgdesc="Unofficial native VooV Meeting Linux client (patched Tencent Meeting)"
+arch=('x86_64')
+url="https://github.com/hominluo/voov-meeting-linux"
+license=('custom:proprietary')
+depends=('nss' 'libx11' 'libxrandr' 'libpulse' 'libgcrypt' 'dbus' 'systemd-libs' 'desktop-file-utils')
+optdepends=(
+  'libnotify: desktop notifications'
+  'xdg-utils: open meeting links in the browser'
+  'pipewire: PipeWire audio server'
+)
+provides=('voov-meeting')
+conflicts=('voov-meeting')
+options=('!strip' '!debug')
+install=voov-meeting-bin.install
+source=("voov-meeting_${pkgver}-${pkgrel}_amd64.deb::${url}/releases/download/v${pkgver}-${pkgrel}/voov-meeting_${pkgver}-${pkgrel}_amd64.deb")
+sha256sums=('16af780c727929c2d23acc1befbe434eb2380bd5233e7c9fbdcac4b9c4caaf21')
+
+package() {
+  cd "$srcdir"
+  ar x "voov-meeting_${pkgver}-${pkgrel}_amd64.deb"
+  tar -xf data.tar.xz -C "$pkgdir"
+}
+
+# vim:set ts=2 sw=2 et:

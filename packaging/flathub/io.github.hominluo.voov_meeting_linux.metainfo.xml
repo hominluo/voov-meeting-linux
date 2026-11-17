@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.hominluo.voov_meeting_linux</id>
+  <metadata_license>MIT</metadata_license>
+  <project_license>LicenseRef-proprietary</project_license>
+  <name>VooV Meeting</name>
+  <summary>Cross-border video conferencing</summary>
+  <description>
+    <p>
+      VooV Meeting is Tencent's international video-conferencing client.
+      Tencent ships VooV only for Windows and macOS, so this unofficial
+      package republishes Tencent's official Linux client with small binary
+      patches that switch it to VooV's regional settings and endpoints. It
+      runs natively — no Wine.
+    </p>
+    <p>
+      This build is not affiliated with Tencent. A Tencent Meeting or VooV
+      account is required to sign in.
+    </p>
+  </description>
+  <launchable type="desktop-id">io.github.hominluo.voov_meeting_linux.desktop</launchable>
+  <url type="homepage">https://github.com/hominluo/voov-meeting-linux</url>
+  <url type="bugtracker">https://github.com/hominluo/voov-meeting-linux/issues</url>
+  <developer id="io.github.hominluo">
+    <name>Homin Luo</name>
+  </developer>
+  <content_rating type="oars-1.1" />
+  <releases>
+    <release version="3.26.10.401" date="2026-11-16">
+      <description>
+        <p>Initial Flathub release, rebuilt from Tencent Meeting 3.26.10.401.</p>
+      </description>
+    </release>
+  </releases>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/hominluo/voov-meeting-linux/main/docs/screenshot.png</image>
+      <caption>VooV Meeting login window</caption>
+    </screenshot>
+  </screenshots>
+</component>

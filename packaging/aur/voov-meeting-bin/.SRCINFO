@@ -1,0 +1,27 @@
+pkgbase = voov-meeting-bin
+	pkgdesc = Unofficial native VooV Meeting Linux client (patched Tencent Meeting)
+	pkgver = 3.26.10.401
+	pkgrel = 1
+	url = https://github.com/hominluo/voov-meeting-linux
+	install = voov-meeting-bin.install
+	arch = x86_64
+	license = custom:proprietary
+	depends = nss
+	depends = libx11
+	depends = libxrandr
+	depends = libpulse
+	depends = libgcrypt
+	depends = dbus
+	depends = systemd-libs
+	depends = desktop-file-utils
+	optdepends = libnotify: desktop notifications
+	optdepends = xdg-utils: open meeting links in the browser
+	optdepends = pipewire: PipeWire audio server
+	provides = voov-meeting
+	conflicts = voov-meeting
+	options = !strip
+	options = !debug
+	source = voov-meeting_3.26.10.401-1_amd64.deb::https://github.com/hominluo/voov-meeting-linux/releases/download/v3.26.10.401-1/voov-meeting_3.26.10.401-1_amd64.deb
+	sha256sums = 16af780c727929c2d23acc1befbe434eb2380bd5233e7c9fbdcac4b9c4caaf21
+
+pkgname = voov-meeting-bin

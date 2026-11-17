@@ -17,10 +17,17 @@
   </description>
   <launchable type="desktop-id">@APP_ID@.desktop</launchable>
   <url type="homepage">https://github.com/hominluo/voov-meeting-linux</url>
-  <developer id="com.voovmeeting">
+  <developer id="io.github.hominluo">
     <name>Homin Luo</name>
   </developer>
   <content_rating type="oars-1.1" />
+  <releases>
+    <release version="@VERSION@" date="@RELEASE_DATE@">
+      <description>
+        <p>Rebuild of Tencent Meeting for Linux, re-identified as VooV.</p>
+      </description>
+    </release>
+  </releases>
   <screenshots>
     <screenshot type="default">
       <image>https://raw.githubusercontent.com/hominluo/voov-meeting-linux/main/docs/screenshot.png</image>

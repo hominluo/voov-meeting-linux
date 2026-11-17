@@ -7,7 +7,7 @@ set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 ensure_tree "$@"
 
-APP_ID_FLATPAK=com.voovmeeting.VooVMeeting
+APP_ID_FLATPAK=io.github.hominluo.voov_meeting_linux
 RUNTIME=org.freedesktop.Platform
 SDK=org.freedesktop.Sdk
 BRANCH=25.08
@@ -49,6 +49,8 @@ install -Dm644 "$ROOT/packaging/common/icons/voov.svg" \
   "$APPDIR/share/icons/hicolor/scalable/apps/$APP_ID_FLATPAK.svg"
 sed -e "s|@APP_ID@|$APP_ID_FLATPAK|g" \
     -e "s|@RELEASE_NAME@|$RELEASE_NAME|g" \
+    -e "s|@VERSION@|$TM_VERSION|g" \
+    -e "s|@RELEASE_DATE@|$(date -u +%F)|g" \
     "$ROOT/packaging/flatpak/metainfo.xml.in" > "$APPDIR/share/metainfo/$APP_ID_FLATPAK.metainfo.xml"
 
 info "finishing flatpak"
