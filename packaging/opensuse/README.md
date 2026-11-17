@@ -15,6 +15,10 @@ Without `spectool`, put a copy of
 `voov-meeting_3.26.10.401-1_amd64.deb` in the current directory and pass
 `--define "_sourcedir $PWD"`.
 
+Verified with `rpmbuild` on openSUSE Tumbleweed: the package installs
+`/opt/voov-meeting`, `/usr/bin/voov-meeting`, the desktop file and the
+hicolor icons, and its only warning is the expected absolute symlink.
+
 Publish through the openSUSE Build Service:
 
 1. Create a project at <https://build.opensuse.org> (e.g. `home:hominluo`).

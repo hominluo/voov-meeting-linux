@@ -71,7 +71,7 @@ no network beyond downloading that asset.
 
 ```bash
 sudo dnf install copr-cli
-copr-cli create voov-meeting --chroot fedora-42-x86_64 --chroot fedora-43-x86_64
+copr-cli create voov-meeting --chroot fedora-44-x86_64 --chroot fedora-45-x86_64
 copr-cli build voov-meeting packaging/fedora/voov-meeting.spec
 ```
 

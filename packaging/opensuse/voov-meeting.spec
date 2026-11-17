@@ -30,8 +30,8 @@ Requires:       desktop-file-utils
 %global debug_package %{nil}
 %global __strip /bin/true
 %global __os_install_post %{nil}
-# The payload is ~670 MB of prebuilt binaries; use the same zstd level as the
-# Fedora package so the download stays under 100 MB.
+# The payload is ~670 MB of prebuilt binaries; use the same zstd payload
+# compression as the Fedora package.
 %global _binary_payload w19.zstdio
 
 %description
@@ -51,12 +51,20 @@ tar -xf data.tar.xz -C %{buildroot}
 rm -rf %{buildroot}/tmp
 
 %post
-%desktop_database_post
-%icon_theme_cache_post
+if command -v update-desktop-database >/dev/null 2>&1; then
+  update-desktop-database -q %{_datadir}/applications || :
+fi
+if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+  gtk-update-icon-cache -q -t -f %{_datadir}/icons/hicolor || :
+fi
 
 %postun
-%desktop_database_postun
-%icon_theme_cache_postun
+if command -v update-desktop-database >/dev/null 2>&1; then
+  update-desktop-database -q %{_datadir}/applications || :
+fi
+if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+  gtk-update-icon-cache -q -t -f %{_datadir}/icons/hicolor || :
+fi
 
 %files
 /opt/voov-meeting

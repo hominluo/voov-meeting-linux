@@ -89,6 +89,9 @@ git clone https://aur.archlinux.org/voov-meeting-bin.git
 cd voov-meeting-bin && makepkg -si
 ```
 
+*The AUR push is pending the maintainer's SSH key; meanwhile build the ready
+package from `packaging/aur/voov-meeting-bin` in this repository.*
+
 ### Debian / Ubuntu (APT)
 
 ```bash
@@ -108,12 +111,18 @@ sudo dnf copr enable hominluo/voov-meeting
 sudo dnf install voov-meeting
 ```
 
+*The COPR project is prepared but not published yet; use the release `.rpm`
+until the listing is live.*
+
 ### openSUSE (OBS)
 
 ```bash
 sudo zypper addrepo https://download.opensuse.org/repositories/home:/hominluo/openSUSE_Tumbleweed/home:hominluo.repo
 sudo zypper install voov-meeting
 ```
+
+*The OBS project is prepared but not published yet; use the release `.rpm`
+until the listing is live.*
 
 ### Flatpak (Flathub)
 
@@ -139,6 +148,8 @@ sudo snap install voov-meeting
 ```
 
 The snap uses classic confinement and installs the same `/opt` tree.
+*Store upload is pending; install the release `.snap` directly in the
+meantime (see Direct downloads).*
 
 ### NixOS / Nix
 
