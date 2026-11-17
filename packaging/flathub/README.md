@@ -37,7 +37,8 @@ the runtime, which is why `apply_extra` does not call `ar`.
 ## Submitting
 
 Flathub forbids AI agents from opening or automating submission pull
-requests, so run these steps yourself:
+requests, so run these steps yourself. The manifest was drafted with AI
+assistance — say so in the PR description, as Flathub's policy asks.
 
 ```bash
 gh repo fork flathub/flathub --clone=false

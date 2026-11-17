@@ -99,7 +99,8 @@ and `flathub.json` are copied to the root of a branch in a fork of
 `packaging/flathub/README.md`.
 
 Note Flathub's policy: **AI agents must not open the submission PR or write
-its commit message**; a human has to submit it.
+its commit message**; a human has to submit it, and the PR should disclose
+that AI assistance was used.
 
 ## Snap Store
 
