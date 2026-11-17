@@ -54,6 +54,10 @@ Linux desktop integration.
 - The client writes its data to the standard XDG directories and never into
   its install tree, so the package stays read-only under `/opt`.
 
+For the complete engineering record — the static analysis, every patch, the
+login debugging and the packaging details — see
+[docs/HOW-WE-BUILT-IT.md](docs/HOW-WE-BUILT-IT.md).
+
 ## Install
 
 All release builds are attached to
