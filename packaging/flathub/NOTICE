@@ -1,0 +1,54 @@
+# NOTICE
+
+This repository contains build scripts and packaging files licensed under the
+MIT license (see LICENSE).
+
+The release artifacts also contain an application tree taken from Tencent's
+official Linux client:
+
+    Tencent Meeting 3.26.10.401 (Linux, channel 0300000000)
+    TencentMeeting_0300000000_3.26.10.401_x86_64_default.publish.officialwebsite.deb
+    https://updatecdn.meeting.qq.com/cos/72e0e0023e1d1e6d4123fba28821aea1/TencentMeeting_0300000000_3.26.10.401_x86_64_default.publish.officialwebsite.deb
+
+That application, including all libraries, resources and other assets under
+`/opt/voov-meeting/app`, is proprietary software:
+
+    Copyright (c) Tencent. All rights reserved.
+    VooV Meeting and Tencent Meeting are trademarks of Tencent.
+
+Nothing in the MIT license grants rights to those binaries. Its binaries and
+resources are redistributed **patched** by this project; the patches are
+described in `docs/REVERSE-ENGINEERING.md` and applied by
+`scripts/patch-linux-build.py`:
+
+- `lib/libwemeet_platform.so` — `default_settings()` is redirected to a code
+  cave that forces the two overseas flags (`+0x420`, `+0x4c8`) in the
+  settings object;
+- `lib/libwemeet_app_sdk.so` — the build-time endpoint strings
+  `conn.wemeet.tencent.com` / `quic.conn.wemeet.qq.com` are replaced with
+  `conn.voovmeeting.com` / `quic.voovmeeting.com`; the product type
+  `TM_Product_App` becomes `TM_Product_VooV`; the publish channel
+  `TencentInside` becomes `Overseas`; the CGI gateway
+  `https://work.medialab.qq.com` becomes `https://api.voovmeeting.com`; the
+  channel id `0300000000` becomes `1410000197`; the md5 constant of
+  `bin/wemeet.res` is updated;
+- `lib/libwemeet_app_components.so` — product type `TM_Product_App` becomes
+  `TM_Product_VooV`;
+- `lib/libwemeet.so`, `bin/modules/schedule_meeting/libschedule_meeting_module.so`
+  — channel id `0300000000` becomes `1410000197`;
+- `lib/libwemeet_module_api.so` — the WeChat QR-login pages move from
+  `meeting.tencent.com` to `voovmeeting.com`;
+- `bin/wemeet.res`, `bin/modules/settings/module.res` — the product name
+  `腾讯会议` becomes `VooV Meeting`; the md5 constant of the settings pack in
+  `bin/modules/settings/libsettings_module.so` is updated;
+- `bin/nxui/app/nxres/res/drawable-*/login_guide_logo.png` — the login page
+  logo bitmaps are replaced with the VooV artwork from Tencent's own VooV
+  build.
+
+No other file is modified. The only additions to the application tree are our
+MIT-licensed launcher (`bin/voov-meeting`) and a `VERSION` marker file.
+
+If you are a rights holder and want an artifact removed, open an issue.
+
+This is an unofficial community project. It is not affiliated with, endorsed
+by, or supported by Tencent.

@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=VooV Meeting
+Name[zh_CN]=VooV Meeting
+GenericName=Video Conferencing
+Comment=Cross-border video conferencing (unofficial Linux build)
+Exec=voov-meeting %u
+Icon=io.github.hominluo.voov_meeting_linux
+Terminal=false
+StartupWMClass=wemeetapp
+StartupNotify=false
+Categories=Network;VideoConference;
+MimeType=x-scheme-handler/wemeet;x-scheme-handler/voovmeeting;
+Keywords=meeting;video;conference;voov;tencent;

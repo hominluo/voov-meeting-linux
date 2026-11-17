@@ -40,8 +40,52 @@ dash form so it stays a valid package version and filename.
    of the patched binaries and resource packs. A new upstream base needs its
    offsets re-derived — the method is documented in
    [docs/REVERSE-ENGINEERING.md](docs/REVERSE-ENGINEERING.md).
-4. Update `pkgver` and the `.deb` checksum in `packaging/arch/PKGBUILD`.
+4. Update `pkgver` and the `.deb` checksum in `packaging/arch/PKGBUILD`, and
+   the same fields in `packaging/aur/voov-meeting-bin/PKGBUILD` (then rerun
+   `makepkg --printsrcinfo > .SRCINFO`).
 5. Update the release notes in `docs/releases/`.
+6. Update the `.deb` URL, size and checksum in
+   `packaging/flathub/io.github.hominluo.voov_meeting_linux.yml` (pinned to an
+   immutable commit for the metadata files).
+7. Bump `Version`/`Source0` in `packaging/fedora/voov-meeting.spec` and
+   `packaging/opensuse/voov-meeting.spec`, and `version` in
+   `packaging/snap/snapcraft.yaml`.
+
+## Publishing
+
+Every release is built once and then published to each channel:
+
+```bash
+./scripts/build-deb.sh
+./scripts/build-rpm.sh
+./scripts/build-appimage.sh
+./scripts/build-flatpak.sh
+./scripts/make-apt-index.sh
+```
+
+Upload the packages, `SHA256SUMS`, and the APT index to the GitHub release:
+
+```bash
+gh release upload "v$PKG_VERSION" dist/* --clobber
+```
+
+The APT index (`Packages`, `Packages.gz`, `Packages.xz`, `Release`) must be
+uploaded every time the `.deb` changes: the repository is the flat
+`releases/latest/download/` directory, so `apt update` always sees the
+current `Packages`.
+
+Then, per channel:
+
+| Channel | What to update |
+| ------- | -------------- |
+| AUR | bump `pkgver`/`pkgrel`/`sha256sums` in `packaging/aur/voov-meeting-bin`, rerun `makepkg --printsrcinfo`, commit and push to `ssh://aur@aur.archlinux.org/voov-meeting-bin.git` |
+| Fedora COPR | `copr-cli build voov-meeting packaging/fedora/voov-meeting.spec` (or the web UI) |
+| openSUSE OBS | `osc commit` the updated `voov-meeting.spec` in `home:hominluo` |
+| Flathub | update the manifest's `.deb` URL/sha256 in a PR against `flathub/flathub` |
+| Snap | `snapcraft pack` and `snapcraft upload --release=stable voov-meeting_*.snap` |
+
+The Nix flake needs no publication: it fetches the pinned release `.deb` from
+the GitHub release.
 
 ## Relationship to the application
 
