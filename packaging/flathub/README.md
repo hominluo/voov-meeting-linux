@@ -2,14 +2,19 @@
 
 The manifest in this directory is the one that goes into the
 [flathub/flathub](https://github.com/flathub/flathub) repository. Flathub
-only stores manifests, so these two files are copied to the **root** of a
-branch in a fork of that repository:
+only stores manifests, so **all** files in this directory except
+`README.md` are copied to the root of a branch in a fork of that repository.
 
-- `io.github.hominluo.voov_meeting_linux.yml`
-- `flathub.json`
-
-Everything else (the `.deb`, the AppStream metadata, the licence files) is
-pulled from the URLs pinned in the manifest.
+| File | Purpose |
+| ---- | ------- |
+| `io.github.hominluo.voov_meeting_linux.yml` | the manifest |
+| `flathub.json` | x86_64 only |
+| `apply_extra` | runs at install time, unpacks the `.deb` into `/app/opt` |
+| `voov-meeting.sh` | `/app/bin/voov-meeting` wrapper |
+| `voov-meeting.desktop` | desktop entry |
+| `voov-256.png`, `voov-512.png`, `voov.svg` | icons |
+| `io.github.hominluo.voov_meeting_linux.metainfo.xml` | AppStream metadata |
+| `LICENSE`, `NOTICE` | licensing |
 
 ## Application ID
 
@@ -20,13 +25,14 @@ the ID must resolve to the repository URL, and
 `scripts/build-flatpak.sh`, so the release bundle and the Flathub build are
 the same application.
 
-## Why the manifest installs a `.deb`
+## Why extra-data
 
-The payload is Tencent's proprietary Linux client. The `.deb` is the release
-artifact built by this repository (patched binaries, VooV branding), and it is
-extracted verbatim into `/app`, exactly like the `.deb`, RPM and Arch
-packages do. The Flatpak therefore ships the same bits as every other
-channel.
+Tencent's client is proprietary, so the payload is declared as an
+`extra-data` source: Flatpak downloads the release `.deb` from GitHub at
+install time instead of Flathub redistributing the binaries. `apply_extra`
+then unpacks only `/opt/voov-meeting` into `/app` using `python3` (to read
+the `ar` archive) and `tar`. Flatpak only includes `python3` and `tar` from
+the runtime, which is why `apply_extra` does not call `ar`.
 
 ## Submitting
 
@@ -40,7 +46,12 @@ cd flathub
 git checkout -b io.github.hominluo.voov_meeting_linux
 cp <this-repo>/packaging/flathub/io.github.hominluo.voov_meeting_linux.yml .
 cp <this-repo>/packaging/flathub/flathub.json .
-git add io.github.hominluo.voov_meeting_linux.yml flathub.json
+cp <this-repo>/packaging/flathub/{apply_extra,voov-meeting.sh,voov-meeting.desktop,voov-256.png,voov-512.png,voov.svg} .
+cp <this-repo>/packaging/flathub/io.github.hominluo.voov_meeting_linux.metainfo.xml .
+cp <this-repo>/packaging/flathub/{LICENSE,NOTICE} .
+git add io.github.hominluo.voov_meeting_linux.yml flathub.json apply_extra \
+  voov-meeting.sh voov-meeting.desktop voov-256.png voov-512.png voov.svg \
+  io.github.hominluo.voov_meeting_linux.metainfo.xml LICENSE NOTICE
 git commit -m "Add VooV Meeting"
 git push origin io.github.hominluo.voov_meeting_linux
 gh pr create --repo flathub/flathub --title "Add io.github.hominluo.voov_meeting_linux" \
@@ -66,5 +77,5 @@ flatpak-builder --user --install --force-clean build-dir \
 flatpak run io.github.hominluo.voov_meeting_linux
 ```
 
-The first build downloads the 189 MB `.deb`; the result is the same tree as
-`dist/VooV-Meeting-3.26.10.401-1-x86_64.flatpak`.
+The first install downloads the 197 MB `.deb` through `extra-data`; the
+result is the same tree as `dist/VooV-Meeting-3.26.10.401-1-x86_64.flatpak`.

@@ -60,52 +60,112 @@ login debugging and the packaging details — see
 
 ## Install
 
+Every channel ships the same patched Tencent Meeting tree. The GitHub release
+is always current; the store channels below reuse the release `.deb`, so the
+payload is identical everywhere.
+
+| Channel | Status |
+| ------- | ------ |
+| APT (Debian, Ubuntu) | live |
+| Nix flake | live |
+| AUR (`voov-meeting-bin`) | package ready, awaiting maintainer key |
+| Fedora COPR | spec ready, awaiting upload |
+| openSUSE OBS | spec ready, awaiting upload |
+| Flathub | manifest ready, awaiting submission |
+| Snap Store | snap built, awaiting upload |
+| `.deb` / `.rpm` / AppImage / Flatpak bundle | live |
+
+### Arch Linux (AUR)
+
+```bash
+yay -S voov-meeting-bin
+```
+
+Or build it from source:
+
+```bash
+git clone https://aur.archlinux.org/voov-meeting-bin.git
+cd voov-meeting-bin && makepkg -si
+```
+
+### Debian / Ubuntu (APT)
+
+```bash
+echo "deb [trusted=yes] https://github.com/hominluo/voov-meeting-linux/releases/latest/download/ ./" \
+  | sudo tee /etc/apt/sources.list.d/voov-meeting.list
+sudo apt update
+sudo apt install voov-meeting
+```
+
+The repository is flat: `Packages` and the `.deb` are release assets, so
+`apt update` follows the newest release.
+
+### Fedora (COPR)
+
+```bash
+sudo dnf copr enable hominluo/voov-meeting
+sudo dnf install voov-meeting
+```
+
+### openSUSE (OBS)
+
+```bash
+sudo zypper addrepo https://download.opensuse.org/repositories/home:/hominluo/openSUSE_Tumbleweed/home:hominluo.repo
+sudo zypper install voov-meeting
+```
+
+### Flatpak (Flathub)
+
+```bash
+flatpak install flathub io.github.hominluo.voov_meeting_linux
+flatpak run io.github.hominluo.voov_meeting_linux
+```
+
+Until the Flathub listing is live, install the bundle from the release:
+
+```bash
+flatpak install --user ./VooV-Meeting-3.26.10.401-1-x86_64.flatpak
+flatpak run io.github.hominluo.voov_meeting_linux
+```
+
+The bundle needs the Freedesktop runtime (`org.freedesktop.Platform//25.08`);
+Flatpak downloads it from Flathub on first install.
+
+### Snap
+
+```bash
+sudo snap install voov-meeting
+```
+
+The snap uses classic confinement and installs the same `/opt` tree.
+
+### NixOS / Nix
+
+```bash
+nix profile install github:hominluo/voov-meeting-linux
+```
+
+### Direct downloads
+
 All release builds are attached to
 [GitHub Releases](https://github.com/hominluo/voov-meeting-linux/releases).
-Pick the format for your distribution.
-
-### Debian / Ubuntu (`.deb`)
 
 ```bash
+# Debian / Ubuntu
 sudo apt install ./voov-meeting_3.26.10.401-1_amd64.deb
-voov-meeting
-```
 
-### Fedora / RHEL / openSUSE (`.rpm`)
-
-```bash
+# Fedora / RHEL / openSUSE
 sudo dnf install ./voov-meeting-3.26.10.401-1.x86_64.rpm
-voov-meeting
-```
 
-### Any distribution (AppImage)
-
-```bash
+# Any distribution
 chmod +x VooV-Meeting-3.26.10.401-1-x86_64.AppImage
 ./VooV-Meeting-3.26.10.401-1-x86_64.AppImage
 ```
 
 The AppImage needs FUSE 2, or run it with `--appimage-extract-and-run`.
 
-### Flatpak
-
-```bash
-flatpak install --user ./VooV-Meeting-3.26.10.401-1-x86_64.flatpak
-flatpak run com.voovmeeting.VooVMeeting
-```
-
-The bundle needs the Freedesktop runtime (`org.freedesktop.Platform//25.08`);
-Flatpak downloads it from Flathub on first install.
-
-### Arch Linux
-
-```bash
-cd packaging/arch
-makepkg -si
-```
-
-The PKGBUILD downloads the release `.deb` and installs its contents under
-`/opt/voov-meeting`.
+There is also an Arch PKGBUILD in `packaging/arch` (`makepkg -si`) that builds
+the same `.deb` payload locally.
 
 ### First start
 

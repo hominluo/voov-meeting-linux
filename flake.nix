@@ -6,7 +6,10 @@
   outputs = { self, nixpkgs }:
     let
       systems = [ "x86_64-linux" ];
-      forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
+      forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f (import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+      }));
     in
     {
       packages = forAllSystems (pkgs: rec {

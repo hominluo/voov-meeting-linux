@@ -26,6 +26,29 @@
 , glib
 , zlib
 , libpng
+, wayland
+, alsa-lib
+, libdrm
+, libgbm
+, libXcomposite
+, libXdamage
+, libxshmfence
+, libXScrnSaver
+, libXxf86vm
+, libXt
+, libSM
+, libICE
+, libXmu
+, libXpm
+, libxkbfile
+, harfbuzz
+, xcbutil
+, xcbutilcursor
+, xcbutilimage
+, xcbutilkeysyms
+, xcbutilrenderutil
+, xcbutilwm
+, cups
 , stdenv
 }:
 
@@ -52,6 +75,10 @@ stdenvNoCC.mkDerivation rec {
     rm -f "$out/usr/bin/voov-meeting"
     rmdir "$out/usr/bin" 2>/dev/null || true
 
+    mkdir -p "$out/share"
+    cp -a "$out/usr/share/." "$out/share/"
+    rm -rf "$out/usr"
+
     substituteInPlace "$out/share/applications/voov-meeting.desktop" \
       --replace-fail "Exec=/opt/voov-meeting/bin/voov-meeting" "Exec=$out/bin/voov-meeting" \
       --replace-fail "Icon=voov-meeting" "Icon=$out/share/icons/hicolor/512x512/apps/voov-meeting.png"
@@ -61,6 +88,10 @@ stdenvNoCC.mkDerivation rec {
         libGL libx11 libxrandr libxext libxrender libxi libxtst libxcursor
         libxfixes libxcb libxkbcommon libpulseaudio nss nspr libgcrypt dbus
         systemd fontconfig freetype expat glib zlib libpng stdenv.cc.cc.lib
+        wayland alsa-lib libdrm libgbm libXcomposite libXdamage libxshmfence
+        libXScrnSaver cups harfbuzz libXxf86vm libXt libSM libICE libXmu libXpm
+        libxkbfile xcbutil xcbutilcursor xcbutilimage xcbutilkeysyms
+        xcbutilrenderutil xcbutilwm
       ]}"
 
     runHook postInstall

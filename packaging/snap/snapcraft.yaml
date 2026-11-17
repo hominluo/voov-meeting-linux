@@ -1,0 +1,59 @@
+name: voov-meeting
+title: VooV Meeting
+summary: VooV Meeting video conferencing client (unofficial native Linux build)
+description: |
+  VooV Meeting is Tencent's international video-conferencing client, which
+  Tencent ships only for Windows and macOS. This snap packages an unofficial
+  native Linux build: Tencent's official Linux client (Tencent Meeting
+  3.26.10.401) patched to connect to VooV's servers, with no Wine involved.
+
+  The client bundles its own Qt and runs unmodified apart from the launcher
+  environment; the snap only extracts the released .deb and adds desktop
+  integration.
+
+  This is a community build. The bundled application is proprietary Tencent
+  software; only the packaging and helper scripts are MIT licensed.
+version: "3.26.10.401"
+base: core22
+grade: stable
+confinement: classic
+license: MIT
+website: https://github.com/hominluo/voov-meeting-linux
+source-code: https://github.com/hominluo/voov-meeting-linux
+issues: https://github.com/hominluo/voov-meeting-linux/issues
+contact: homin.ro@gmail.com
+
+# 256x256 icon (copy of packaging/common/icons/voov-256.png), installed as
+# meta/gui/icon.png by snapcraft. The desktop entry's Icon= is rewritten to
+# point at it.
+icon: icon.png
+
+platforms:
+  amd64:
+    build-on: [amd64]
+    build-for: [amd64]
+
+apps:
+  voov-meeting:
+    # The .deb's /usr/bin/voov-meeting is an absolute symlink into the host's
+    # /opt, so use the real launcher inside the snap instead.
+    command: opt/voov-meeting/bin/voov-meeting
+    # Snapcraft rewrites this entry's Exec=/opt/voov-meeting/bin/voov-meeting
+    # to Exec=voov-meeting (the app name) and installs it as
+    # meta/gui/voov-meeting.desktop; snapd then rewrites it to
+    # /snap/bin/voov-meeting, which works under classic confinement.
+    desktop: usr/share/applications/voov-meeting.desktop
+    # The launcher sets QT_QPA_PLATFORM, LD_LIBRARY_PATH and QT_PLUGIN_PATH
+    # itself; do not shadow them here.
+
+parts:
+  voov-meeting:
+    plugin: dump
+    source: https://github.com/hominluo/voov-meeting-linux/releases/download/v3.26.10.401-1/voov-meeting_3.26.10.401-1_amd64.deb
+    source-type: deb
+    source-checksum: sha256/16af780c727929c2d23acc1befbe434eb2380bd5233e7c9fbdcac4b9c4caaf21
+    override-build: |
+      craftctl default
+      # Replace the .deb's absolute symlink (/opt/voov-meeting/bin/voov-meeting,
+      # which would resolve on the host, not in the snap) with a relative one.
+      ln -sfn ../../opt/voov-meeting/bin/voov-meeting "$CRAFT_PART_INSTALL/usr/bin/voov-meeting"
