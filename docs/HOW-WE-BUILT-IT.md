@@ -342,21 +342,32 @@ single launcher (`overlay/voov-meeting.sh`) and a shared desktop file:
 | `.deb` | `scripts/build-deb.sh` | no `dpkg-deb` needed: `ar` + `tar` + `xz` |
 | `.rpm` | `scripts/build-rpm.sh` | `rpmbuild` inside a `fedora:latest` container |
 | AppImage | `scripts/build-appimage.sh` | self-contained; `appimagetool` |
-| Flatpak | `scripts/build-flatpak.sh` | Freedesktop 25.08 runtime |
-| Arch | `packaging/arch/PKGBUILD` | packages the release `.deb` |
+| Flatpak bundle | `scripts/build-flatpak.sh` | Freedesktop 25.08 runtime |
+| APT repository | `scripts/make-apt-index.sh` | flat repo; `Packages`/`Release` as release assets |
+| AUR | `packaging/aur/voov-meeting-bin` | `-bin` repack of the release `.deb` |
+| Fedora COPR | `packaging/fedora/voov-meeting.spec` | the `.deb` is `Source0`, unpacked in `%install` |
+| openSUSE OBS | `packaging/opensuse/voov-meeting.spec` | same approach |
+| Flathub | `packaging/flathub/` | `extra-data`; payload downloaded at install time |
+| Snap | `packaging/snap/snapcraft.yaml` | classic confinement; built in the Snapcraft 8 image |
+| Nix | `flake.nix` | wraps the release `.deb`, supplies host libraries |
 
 Practical details that cost time:
 
 - The Flatpak icon validator rejects 1024×1024 app icons (max 512), so the
   Flatpak installs 16–512 and the SVG.
+- A redistributable Flatpak cannot carry Tencent's binaries, so the Flathub
+  manifest uses an `extra-data` source. `apply_extra` runs at install time
+  and unpacks the `.deb` with `python3` (the runtime has no `ar`) and `tar`.
 - The RPM `%files` list must name every installed file; the added SVG had to
   be listed explicitly or `rpmbuild` fails with "Installed (but unpackaged)
   file(s) found".
 - `rpm` itself is not needed on the host; the build script does the RPM work
   in Docker.
+- The `.deb`'s `/usr/bin/voov-meeting` is an absolute symlink into `/opt`;
+  the snap replaces it with a relative one, or the link would resolve on the
+  host rather than inside the snap.
 - The AppImage expects FUSE 2 (or `--appimage-extract-and-run`).
-- State lives in the standard XDG directories; the `/opt` tree stays
-  read-only.
+- State lives in the standard XDG directories; `/opt` stays read-only.
 
 Versioning follows the upstream Linux base with our own build counter:
 `3.26.10.401 (1)`, tag and package version `3.26.10.401-1`. When a build with
@@ -377,9 +388,13 @@ The claims in this document were checked, not assumed:
   `conn.voovmeeting.com`, completes WeChat login with `code: 0`, and shows the
   home screen. The phone form lists all 213 regions and the login logo is the
   VooV artwork.
-- **Packages.** The `.deb`, `.rpm`, AppImage, Flatpak and Arch package were
-  rebuilt from the same tree; contents were spot-checked (launcher, 16 px
-  icon, SVG) and the release `SHA256SUMS` regenerated.
+- **Packages.** The `.deb`, `.rpm`, AppImage and Flatpak bundle were rebuilt
+  from the same tree; the APT index was resolved by a real `apt update` in a
+  `debian:stable-slim` container, the AUR package was built with `makepkg`,
+  the Fedora and openSUSE specs were built with `rpmbuild`, the Flathub
+  manifest with `flatpak-builder`, the Snap with Snapcraft 8, and the Nix
+  flake with `nix build`. Contents were spot-checked (launcher, 16 px icon,
+  SVG) and the release `SHA256SUMS` regenerated.
 
 Patched digests for the two most important libraries:
 
@@ -398,8 +413,19 @@ overlay/voov-meeting.sh         launcher (XWayland handling, bundled Qt env)
 packaging/common/icons/         icon art (16–1024 px, SVG)
 packaging/common/voov-meeting.desktop.in
 scripts/build-{deb,rpm,appimage,flatpak}.sh
+scripts/make-apt-index.sh        flat APT repository index
+overlay/voov-meeting.sh         launcher (XWayland handling, bundled Qt env)
+packaging/common/icons/         icon art (16–1024 px, SVG)
+packaging/common/voov-meeting.desktop.in
 packaging/arch/PKGBUILD         builds from the release .deb
+packaging/aur/voov-meeting-bin  AUR (-bin) package
+packaging/fedora/               COPR spec + instructions
+packaging/opensuse/             OBS spec + instructions
+packaging/flathub/              Flathub manifest (extra-data) + support files
+packaging/snap/                 snapcraft.yaml + build instructions
+packaging/nix/, flake.nix       Nix package
 docs/REVERSE-ENGINEERING.md     static-analysis report + patch details
+docs/PUBLISHING.md              per-channel publishing procedure
 docs/releases/                  release notes
 ```
 

@@ -1,6 +1,6 @@
 # Publishing
 
-One build, seven channels. The GitHub release is the source of truth: every
+One build, every channel. The GitHub release is the source of truth: every
 package is built from the same patched tree, and the store packages reuse the
 release `.deb` so the payload is byte-identical everywhere.
 
@@ -104,14 +104,25 @@ its commit message**; a human has to submit it.
 ## Snap Store
 
 `packaging/snap/snapcraft.yaml` builds a classic-confinement snap named
-`voov-meeting`. After registering the name and logging in:
+`voov-meeting`. The name is free in the store; it needs a one-time
+registration and, because classic confinement is a manual review, a
+store-request approval. Build with the Snapcraft image if Snapcraft is not
+installed:
 
 ```bash
-snapcraft pack
-snapcraft upload --release=stable voov-meeting_3.26.10.401_amd64.snap
+docker run --rm -v "$PWD/packaging/snap:/project" ghcr.io/canonical/snapcraft:8_core22
+snapcraft login
+snapcraft register voov-meeting
+snapcraft upload --release=stable packaging/snap/voov-meeting_3.26.10.401_amd64.snap
 ```
 
-Users install with `sudo snap install voov-meeting`.
+Classic approval: post in the Snapcraft forum *store-requests* category with
+the snap name and the reason (the client needs the host's camera, microphone,
+network and its own bundled Qt). Later uploads need no new request.
+
+Users install with `sudo snap install voov-meeting`. The same `.snap`
+is attached to the GitHub release, so it can also be installed without the
+store: `sudo snap install --classic --dangerous ./voov-meeting_*.snap`.
 
 ## Nix
 

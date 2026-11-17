@@ -30,6 +30,9 @@ Requires:       desktop-file-utils
 %global debug_package %{nil}
 %global __strip /bin/true
 %global __os_install_post %{nil}
+# The payload is ~670 MB of prebuilt binaries; use the same zstd level as the
+# Fedora package so the download stays under 100 MB.
+%global _binary_payload w19.zstdio
 
 %description
 Tencent ships VooV only for Windows and macOS.  This package republishes

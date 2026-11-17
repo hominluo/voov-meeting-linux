@@ -1,8 +1,9 @@
 # voov-meeting-linux
 
 An unofficial **native Linux build of VooV Meeting** — Tencent's international
-video-conferencing client — packaged as `.deb`, `.rpm`, Flatpak, AppImage and
-Arch package. **No Wine.**
+video-conferencing client — distributed as `.deb`, `.rpm`, Flatpak, AppImage
+and Snap, with package-manager channels for Debian/Ubuntu (APT), Arch (AUR),
+Fedora (COPR), openSUSE (OBS), Nix, and Flathub. **No Wine.**
 
 Tencent ships VooV only for Windows and macOS. Its official Linux client is
 the China-only *Tencent Meeting*. This project takes that official Linux
@@ -141,6 +142,9 @@ The snap uses classic confinement and installs the same `/opt` tree.
 
 ### NixOS / Nix
 
+Flakes must be enabled (`experimental-features = nix-command flakes` in
+`nix.conf`; on NixOS `nix.settings.experimental-features`).
+
 ```bash
 nix profile install github:hominluo/voov-meeting-linux
 ```
@@ -160,6 +164,9 @@ sudo dnf install ./voov-meeting-3.26.10.401-1.x86_64.rpm
 # Any distribution
 chmod +x VooV-Meeting-3.26.10.401-1-x86_64.AppImage
 ./VooV-Meeting-3.26.10.401-1-x86_64.AppImage
+
+# Snap (without the store)
+sudo snap install --classic --dangerous ./voov-meeting_3.26.10.401_amd64.snap
 ```
 
 The AppImage needs FUSE 2, or run it with `--appimage-extract-and-run`.

@@ -3,12 +3,17 @@
 The spec builds the release `.deb` into an RPM, so the payload is identical to
 the Debian, Arch and Fedora packages.
 
-Build locally:
+Build locally (the source is a URL, so fetch it first):
 
 ```bash
 cd packaging/opensuse
+spectool -g -R voov-meeting.spec   # downloads the release .deb into the current dir
 rpmbuild -bb --define "_sourcedir $PWD" --define "_rpmdir $PWD/out" voov-meeting.spec
 ```
+
+Without `spectool`, put a copy of
+`voov-meeting_3.26.10.401-1_amd64.deb` in the current directory and pass
+`--define "_sourcedir $PWD"`.
 
 Publish through the openSUSE Build Service:
 

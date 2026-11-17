@@ -17,7 +17,7 @@ version: "3.26.10.401"
 base: core22
 grade: stable
 confinement: classic
-license: MIT
+license: Proprietary
 website: https://github.com/hominluo/voov-meeting-linux
 source-code: https://github.com/hominluo/voov-meeting-linux
 issues: https://github.com/hominluo/voov-meeting-linux/issues
